@@ -22,19 +22,18 @@ void IrcClient::RegisterReader(std::shared_ptr<IReader> iReader)
 	);
 }
 
-void IrcClient::_SendData()
+
+void IrcClient::SendData(std::shared_ptr<IWriter> iWriter)
 {
-	std::shared_ptr<IWriter> writer = m_writer.front();
-	auto& buffer = writer->InputBuffer();
-	m_connection->refSocket().async_write_some(boost::asio::buffer(&buffer[0], buffer.size()), [&](boost::system::error_code ec, std::size_t lengthWritten)
+
+	auto& buffer = iWriter->InputBuffer();
+	m_connection->refSocket().async_write_some(boost::asio::buffer(&buffer[0], buffer.size()), [this, iWriter](boost::system::error_code ec, std::size_t lengthWritten)
 		{
 			if (!ec)
 			{
-				bool sendDataAgain = m_writer.front()->operator()(lengthWritten);
+				bool sendDataAgain = iWriter->operator()(lengthWritten);
 				if (sendDataAgain)
-					_SendData();
-				else
-					m_writer.pop_front();
+					SendData(iWriter);
 			}
 			else
 			{
@@ -42,15 +41,4 @@ void IrcClient::_SendData()
 				assert(0 && "async_read ex != 0");
 			}
 		});
-}
-
-
-void IrcClient::SendData(std::shared_ptr<IWriter> iWriter)
-{
-	auto& buffer = iWriter->InputBuffer();
-	boost::asio::post(m_context, [this, iWriter]() {
-		m_writer.push_back(iWriter);
-		_SendData();
-	}
-	);
 }

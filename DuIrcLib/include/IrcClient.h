@@ -7,7 +7,6 @@
 class IrcClient final
 {
 	std::unique_ptr<Connection> m_connection;
-	std::deque<std::shared_ptr<IWriter>> m_writer;
 	std::shared_ptr<IReader> m_reader;
 	std::string_view m_ip;
 	std::string_view m_port;
