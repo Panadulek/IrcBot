@@ -4,7 +4,8 @@
 void IrcClient::RegisterReader(std::shared_ptr<IReader> iReader)
 {
 	auto buff = m_reader->OutputBuffer();
-	m_connection->refSocket().async_read_some(boost::asio::buffer(m_reader->OutputBuffer(), 4096), [&](boost::system::error_code ec, std::size_t length)
+	std::cout << buff.size() << std::endl;
+	m_connection->refSocket().async_read_some(boost::asio::buffer(buff, buff.size()), [&](boost::system::error_code ec, std::size_t length)
 		{
 			if (!ec)
 			{
