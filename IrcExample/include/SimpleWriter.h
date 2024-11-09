@@ -13,7 +13,7 @@ public:
 	{
 		return m_bufferToSend;
 	}
-	virtual bool operator ()(std::size_t writtenDataSize) //return true if some data have not been send
+	virtual bool operator ()(std::size_t writtenDataSize) override //return true if some data have not been send
 	{
 		m_bufferToSend.erase(m_bufferToSend.begin(), m_bufferToSend.begin() + writtenDataSize);
 		return !m_bufferToSend.empty();

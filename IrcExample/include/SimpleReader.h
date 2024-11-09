@@ -8,7 +8,7 @@ public:
 	Reader()
 	{
 	}
-	virtual std::shared_ptr<IWriter> operator ()(std::size_t length)
+	virtual std::shared_ptr<IWriter> operator ()(std::size_t length) override
 	{
 		std::string output(m_readContainer.begin(), m_readContainer.begin() + length);
 		std::size_t pos = output.find("PING", 0, strlen("PING"));
