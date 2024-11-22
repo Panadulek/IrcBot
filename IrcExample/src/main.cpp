@@ -4,26 +4,26 @@
 #include "../include/SimpleReader.h"
 #include "../include/SimpleWriter.h"
 #include <IrcProtocol.h>
+#include "../include/DuSession.h"
+#include <boost/uuid/uuid.hpp>            
+#include <boost/uuid/uuid_generators.hpp> 
+#include <boost/uuid/uuid_io.hpp>         
 int main()
 {
 	try
 	{
-		IrcClient client("irc.chat4all.org", "6668");
-		std::shared_ptr<IReader> reader = std::make_shared<Reader>();
-
-		IrcProtocol ip;
-		std::string nickname = "EXAMPLE";
-		client.setReader(reader);
-		client.RegisterReader(reader);
+		IrcClient client("127.0.0.1", "6666", std::make_shared<Reader>());
 		client.run();
-		
-		client.SendData(std::make_shared<Writer>(ip.createNickMessage(nickname)));
-		client.SendData(std::make_shared<Writer>(std::format("USER {} 0 * :{}\r\n", nickname, nickname)));
-
 		std::string line;
+		boost::uuids::random_generator gen;
+
+		boost::uuids::uuid id = gen();
+		std::string idStr = boost::uuids::to_string(id);
+
+		std::shared_ptr<IWriter> uuidMsg = std::make_shared<Writer>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::SET_UUID, idStr.size()), idStr);
+		client.SendData(uuidMsg);
 		while (std::getline(std::cin, line)) {
-			std::shared_ptr<IWriter> messageItem = std::make_shared<Writer>(line);
-			client.SendData(messageItem);
+	
 		}
 	}
 	catch (const boost::system::system_error& e) {

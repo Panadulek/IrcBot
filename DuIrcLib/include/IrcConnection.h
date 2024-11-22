@@ -18,12 +18,13 @@ class Connection final
 	}m_state;
 	std::string m_connectionMessage;
 	Connection(boost::asio::io_context& ioContext);
-	
+
 public:
 	static std::unique_ptr<Connection> newConnection(boost::asio::io_context& ioContext);
 	bool connect(std::string ip, std::string port);
 	std::string_view connectionMessage() { return m_connectionMessage; }
 	auto state() { return m_state; }
+	bool isConnected() { return state() == CONNECTED; }
 	Socket& refSocket() { return m_socket; }
 	~Connection() = default;
 

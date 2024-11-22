@@ -1,24 +1,18 @@
 #pragma once
 #include <IReader.h>
 #include "SimpleWriter.h"
+#include "IrcProtocol.h"
 class Reader : public IReader
 {
+	using Header = IrcProtocol::Header;
 	ReadContainer m_readContainer;
+	Header m_headerBuffer;
 public:
 	Reader()
 	{
 	}
 	virtual std::shared_ptr<IWriter> operator ()(std::size_t length) override
 	{
-		std::string output(m_readContainer.begin(), m_readContainer.begin() + length);
-		std::size_t pos = output.find("PING", 0, strlen("PING"));
-		std::cout << output << std::endl;
-		if(pos != std::string::npos)
-		{
-			std::string replay = "PONG :";
-			replay += output.substr(6) + "\r\n";
-			return std::make_shared<Writer>(replay);
-		}
 		return nullptr;
 	}
 	virtual ReadContainer& OutputBuffer()
@@ -26,4 +20,13 @@ public:
 		return  m_readContainer;
 
 	}
+	virtual Header getHeader()
+	{
+		return m_headerBuffer;
+	}
+	virtual uint8_t* getHeaderAsBytes(std::size_t& size)
+	{
+		return nullptr;
+	}
+
 };

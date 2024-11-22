@@ -3,29 +3,38 @@
 #include <string>
 #include <string_view>
 #include <format>
+#include <array>
+#include <boost/uuid/uuid.hpp>
+#define COMMAND_METHOD static std::string
+
+
+
 class IrcProtocol final
 {
-	enum COMMAND_ID : uint8_t
-	{
-		HELLO = 0,
-		NICK,
-		USER,
-		PASSWORD,
-		LAST_COMMAND,
-	};
-	static constexpr std::size_t MAX_COMMAND_LEN = 64;
-	const char command[LAST_COMMAND][MAX_COMMAND_LEN] = {
-		"HELLO",
-		"NICK",
-		"USER",
-		"PASSWORD",
-	};
 
-	std::string buildSimpleCommand(COMMAND_ID id, std::string_view val) { return std::format("{} {}\r\n", command[id], val); }
+
+
 public:
-	std::string createLoginMessage();
-	std::string createLoginMessage(std::string_view user);
-	std::string createNickMessage(std::string_view nick);
-	std::string createPassMessage(std::string_view pass);
+	struct  Header
+	{
+		enum class MESSAGE_TYPE : uint8_t
+		{
+			SET_UUID,
+			EXPECT_UUID,
+		};
+
+		MESSAGE_TYPE Type;
+		uint64_t MessageSize;
+		Header(const MESSAGE_TYPE type, const uint64_t ms) : Type(type), MessageSize(ms) {}
+		Header() = default;
+	};
+private:
+
+	Header getUuidMessage(std::string_view id)
+	{
+		return Header(Header::MESSAGE_TYPE::SET_UUID, id.size());
+	}
+
+	
 
 };
