@@ -10,10 +10,7 @@ class Writer : public IWriter
 public:
 	Header m_header;
 	Writer(Header h, const std::string& str) : m_header(h), sendHeader(true), m_bufferToSend(str.begin(), str.end())
-	{
-		m_header.MessageSize += 1;
-		InputBuffer().emplace_back('\0');
-	}
+	{}
 	Writer(Header h) : m_header(h), sendHeader(true)
 	{
 		assert(h.MessageSize == 0);
@@ -24,8 +21,10 @@ public:
 	}
 	virtual bool operator ()(std::size_t writtenDataSize) override //return true if some data have not been send
 	{
+		bool bSendData = m_header.MessageSize > writtenDataSize;
+		m_header.MessageSize -= writtenDataSize;
+		return bSendData;
 
-		return writtenDataSize < m_header.MessageSize;
 	}
 	virtual uint8_t* getHeaderAsBytes(std::size_t& size) override
 	{

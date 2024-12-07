@@ -25,27 +25,10 @@ private:
 
 public:
 
-	struct Callbacks
-	{
-		std::function<bool(boost::uuids::uuid)> _doesExistUuid;
-		static Callbacks& Instance(DuServer* server)
-		{
-			Callbacks cb(server);
-			return cb;
-		}
-	private:
-		Callbacks(DuServer* serv)
-		{
-			_doesExistUuid = std::bind(&DuServer::doesExistUuid, serv, std::placeholders::_1);
-		}
-	};
-
+	
 
 	static constexpr uint16_t PORT = 6666;
-	DuServer() : m_acceptor(m_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT)) 
-	{
-		Callbacks::Instance(this);
-	}
+	DuServer();
 	void listen()
 	{
 		m_acceptor.async_accept([this](boost::system::error_code ec, DuSession::TcpSocket socket)
@@ -56,6 +39,8 @@ public:
 						m_sessions = std::make_shared<Sessions>();
 					m_sessions->emplace_back(std::make_shared<DuSession>(std::move(socket)));
 					m_sessions->back()->read();
+					std::shared_ptr<IWriter> writer = std::make_shared<DuSession::Writer>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::EXPECT_UUID, 0));
+					m_sessions->back()->write(writer);
 				}
 				listen();
 			}
@@ -67,4 +52,6 @@ public:
 		m_context.run();
 	}
 
-};
+	friend struct Callbacks;
+}
+;

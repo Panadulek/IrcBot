@@ -1,17 +1,49 @@
 #include "../include/IrcClient.h"
 #include <iostream>
 
+
+void IrcClient::RegisterReadHeader()
+{
+	std::size_t len;
+	auto* buff = m_reader->getHeaderAsBytes(len);
+	m_connection->refSocket().async_read_some(boost::asio::buffer(buff, sizeof(IReader::Header)), [&](boost::system::error_code ec, std::size_t length)
+		{
+			if (!ec)
+			{
+				auto dataToWrite = m_reader->operator()(length);
+				if (dataToWrite)
+					SendData(dataToWrite);
+				RegisterReader();
+			}
+			else
+			{
+				std::cout << ec.message() << std::endl;
+				assert(0 && "async_read ex != 0");
+			}
+		}
+	);
+}
+
+
 void IrcClient::RegisterReader()
 {
+	if (!m_reader->hasBytesToRead())
+	{
+		RegisterReadHeader();
+		return;
+	}
 	auto& buff = m_reader->OutputBuffer();
 	m_connection->refSocket().async_read_some(boost::asio::buffer(buff, buff.size()), [&](boost::system::error_code ec, std::size_t length)
 		{
 			if (!ec)
 			{
 				auto dataToWrite = m_reader->operator()(length);
-				RegisterReader();
 				if (dataToWrite)
 					SendData(dataToWrite);
+				if (m_reader->hasBytesToRead())
+					RegisterReader();
+				else
+					RegisterReadHeader();
 			}
 			else
 			{
@@ -48,8 +80,7 @@ void IrcClient::SendData(std::shared_ptr<IWriter> iWriter)
 		{
 			if (!ec)
 			{
-				bool sendDataAgain = iWriter->operator()(lengthWritten);
-				if (iWriter->getHeader().MessageSize > 0)
+				if (iWriter->operator()(lengthWritten))
 				{
 					_SendData(iWriter);
 				}

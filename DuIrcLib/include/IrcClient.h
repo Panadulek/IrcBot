@@ -21,6 +21,7 @@ class IrcClient final
 		}
 	}
 	void _SendData(std::shared_ptr<IWriter> writer);
+	void RegisterReadHeader();
 	void RegisterReader();
 public:
 	IrcClient(std::string ip, std::string port, std::shared_ptr<IReader> reader) : m_ip(ip), m_port(port), m_context(), m_reader(reader)
@@ -36,7 +37,7 @@ public:
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
-		RegisterReader();
+		RegisterReadHeader();
 	}
 	~IrcClient()
 	{

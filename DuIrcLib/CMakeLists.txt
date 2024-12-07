@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 
 add_library(DuIrcLib STATIC
- "src/IrcConnection.cpp" "src/IrcClient.cpp" "src/IrcProtocol.cpp"  "include/DuSession.h" "include/DuServer.h" )
+ "src/IrcConnection.cpp" "src/IrcClient.cpp" "src/IrcProtocol.cpp"  "include/DuSession.h" "include/DuServer.h"  "src/DuServer.cpp" "include/DuCallbacks.hpp" "src/DuCallbacks.cpp")
 
 
 

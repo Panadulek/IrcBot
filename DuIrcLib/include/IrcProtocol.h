@@ -21,20 +21,32 @@ public:
 		{
 			SET_UUID,
 			EXPECT_UUID,
+			
+			MASTER,
+			MASTER_RESPONSE_OK,
+			MASTER_RESPONSE_ERR,
+			
+			PING,
+			PING_RESPONSE_OK,
+			PING_RESPONSE_ERR,
+		
+			PING_STOP,
+			PING_STOP_RESPONSE_OK,
+			PING_STOP_RESPONSE_ERR,
 		};
 
 		MESSAGE_TYPE Type;
 		uint64_t MessageSize;
-		Header(const MESSAGE_TYPE type, const uint64_t ms) : Type(type), MessageSize(ms) {}
+		uint8_t isFromClient;
+		Header(const MESSAGE_TYPE type, const uint64_t ms) : Type(type), MessageSize(ms + sizeof(Header))
+		{
+#ifdef CLIENT_DU
+			isFromClient = 1;
+#else
+			isFromClient = 0;
+#endif
+		}
 		Header() = default;
 	};
-private:
-
-	Header getUuidMessage(std::string_view id)
-	{
-		return Header(Header::MESSAGE_TYPE::SET_UUID, id.size());
-	}
-
-	
 
 };
