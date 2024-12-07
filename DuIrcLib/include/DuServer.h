@@ -12,7 +12,7 @@ private:
 	using Sessions = std::vector<std::shared_ptr<DuSession>>;
 	Acceptor m_acceptor;
 	std::shared_ptr<Sessions> m_sessions;
-
+	std::optional<boost::uuids::uuid> m_masterId;
 
 	bool doesExistUuid(boost::uuids::uuid id)
 	{
@@ -21,7 +21,16 @@ private:
 			});
 		return it != m_sessions->end();
 	}
-
+	bool setMasterUuid(boost::uuids::uuid id)
+	{
+		bool hadMaster = false;
+		if (!m_masterId)
+		{
+			m_masterId = id;
+			hadMaster = true;
+		}
+		return hadMaster;
+	}
 
 public:
 

@@ -125,13 +125,15 @@ private:
 							std::string uuidStr((char*)begin, (char*)begin +length);
 							
 							auto id = gen(uuidStr);
-							if (CALLBACKS._doesExistUuid(id) )
+							if (CALLBACKS._doesExistUuid(id))
 							{
 								std::shared_ptr<IWriter> writer = std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::EXPECT_UUID, 0));
 								_writeHeader(writer);
 							}
 							else
 							{
+								std::shared_ptr<IWriter> writer = std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::UUID_RESPONSE_OK, 0));
+								_writeHeader(writer);
 								m_settings._isSettedUUID = true;
 								m_settings._id = id;
 							}
@@ -145,7 +147,25 @@ private:
 					}
 					else
 					{
-
+						auto& header = reader->getHeader();
+						switch (header.Type) 
+						{
+						case IWriter::Header::MESSAGE_TYPE::MASTER:
+						{
+							std::shared_ptr<IWriter> writer;
+							if (CALLBACKS._setMasterUuid(m_settings._id))
+							{
+								writer = std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::MASTER_RESPONSE_OK, 0));
+							}
+							else
+							{
+								writer = std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::MASTER_RESPONSE_ERR, 0));
+							}
+							_writeHeader(writer);
+						}
+						default:
+							assert(0);
+						}
 					}
 					_readData(reader);
 				}

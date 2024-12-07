@@ -4,6 +4,7 @@
 #include "IrcProtocol.h"
 #include <thread>
 #include <deque>
+#include <atomic>
 class IrcClient final
 {
 	std::unique_ptr<Connection> m_connection;
@@ -13,6 +14,7 @@ class IrcClient final
 	boost::asio::io_context m_context;
 	std::unique_ptr<std::thread> m_loopThread;
 	IrcProtocol m_protocol;
+	std::atomic_flag m_uiidSet;
 	static void _run(boost::asio::io_context& ctx)
 	{
 		while (1)
@@ -28,6 +30,7 @@ public:
 	{
 		m_connection = Connection::newConnection(m_context);
 		m_connection->connect(ip, port);
+		m_uiidSet.clear();
 	}
 	void SendData(std::shared_ptr<IWriter> iReader);
 	void run()
@@ -38,6 +41,8 @@ public:
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		RegisterReadHeader();
+		while (!m_uiidSet.test())
+			Sleep(1);
 	}
 	~IrcClient()
 	{

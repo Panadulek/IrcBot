@@ -9,4 +9,5 @@ Callbacks& Callbacks::Instance(DuServer* server)
 Callbacks::Callbacks(DuServer* serv)
 {
 	_doesExistUuid = std::bind(&DuServer::doesExistUuid, serv, std::placeholders::_1);
+	_setMasterUuid = std::bind(&DuServer::setMasterUuid, serv, std::placeholders::_1);
 }

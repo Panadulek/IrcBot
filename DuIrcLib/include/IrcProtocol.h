@@ -21,7 +21,8 @@ public:
 		{
 			SET_UUID,
 			EXPECT_UUID,
-			
+			UUID_RESPONSE_OK,
+
 			MASTER,
 			MASTER_RESPONSE_OK,
 			MASTER_RESPONSE_ERR,
@@ -33,6 +34,8 @@ public:
 			PING_STOP,
 			PING_STOP_RESPONSE_OK,
 			PING_STOP_RESPONSE_ERR,
+
+			NULL_TYPE,
 		};
 
 		MESSAGE_TYPE Type;

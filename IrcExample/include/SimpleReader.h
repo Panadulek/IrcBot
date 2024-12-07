@@ -17,14 +17,23 @@ public:
 	virtual std::shared_ptr<IWriter> operator ()(std::size_t length) override
 	{
 		m_headerBuffer.MessageSize -= length;
-		if (m_headerBuffer.Type == Header::MESSAGE_TYPE::EXPECT_UUID)
+		switch (m_headerBuffer.Type)
 		{
-			boost::uuids::random_generator gen;
-
-			boost::uuids::uuid id = gen();
-			std::string idStr = boost::uuids::to_string(id);
-
-			return std::make_shared<Writer>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::SET_UUID, idStr.size()), idStr);
+		case Header::MESSAGE_TYPE::EXPECT_UUID:
+			{
+				boost::uuids::random_generator gen;
+				boost::uuids::uuid id = gen();
+				std::string idStr = boost::uuids::to_string(id);
+				return std::make_shared<Writer>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::SET_UUID, idStr.size()), idStr);
+			}
+		case Header::MESSAGE_TYPE::MASTER_RESPONSE_OK:
+			std::cout << "MASTER_OK" << std::endl;
+			break;
+		case Header::MESSAGE_TYPE::MASTER_RESPONSE_ERR:
+			std::cout << "MASTER_ERR" << std::endl;
+			break;
+		default:
+			break;
 		}
 		return nullptr;
 	}

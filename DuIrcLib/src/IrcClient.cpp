@@ -11,6 +11,8 @@ void IrcClient::RegisterReadHeader()
 			if (!ec)
 			{
 				auto dataToWrite = m_reader->operator()(length);
+				if (m_reader->getHeader().Type == IrcProtocol::Header::MESSAGE_TYPE::UUID_RESPONSE_OK)
+					m_uiidSet.test_and_set();
 				if (dataToWrite)
 					SendData(dataToWrite);
 				RegisterReader();
