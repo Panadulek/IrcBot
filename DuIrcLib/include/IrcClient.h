@@ -5,6 +5,7 @@
 #include <thread>
 #include <deque>
 #include <atomic>
+#include "Pinger.h"
 class IrcClient final
 {
 	std::unique_ptr<Connection> m_connection;
@@ -13,6 +14,7 @@ class IrcClient final
 	std::string_view m_port;
 	boost::asio::io_context m_context;
 	std::unique_ptr<std::thread> m_loopThread;
+	std::unique_ptr<Pinger> m_pinger;
 	IrcProtocol m_protocol;
 	std::atomic_flag m_uiidSet;
 	static void _run(boost::asio::io_context& ctx)
@@ -23,8 +25,10 @@ class IrcClient final
 		}
 	}
 	void _SendData(std::shared_ptr<IWriter> writer);
+	void process(std::shared_ptr<IReader> writer);
 	void RegisterReadHeader();
 	void RegisterReader();
+	void initIcmpProtocol();
 public:
 	IrcClient(std::string ip, std::string port, std::shared_ptr<IReader> reader) : m_ip(ip), m_port(port), m_context(), m_reader(reader)
 	{

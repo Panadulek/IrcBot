@@ -1,6 +1,6 @@
 #include "../include/IrcClient.h"
 #include <iostream>
-
+#include "../include/Pinger.h"
 
 void IrcClient::RegisterReadHeader()
 {
@@ -26,7 +26,19 @@ void IrcClient::RegisterReadHeader()
 	);
 }
 
-
+void IrcClient::process(std::shared_ptr<IReader> reader)
+{
+	if (reader->getHeader().Type == IrcProtocol::Header::MESSAGE_TYPE::PING)
+	{
+		std::string view = reinterpret_cast<char*>(&reader->OutputBuffer()[0]);
+		m_pinger = std::make_unique<Pinger>(view.data());
+	}
+	else if (reader->getHeader().Type == IrcProtocol::Header::MESSAGE_TYPE::PING_STOP && m_pinger)
+	{
+		m_pinger->stopPing();
+		m_pinger.reset();
+	}
+}
 void IrcClient::RegisterReader()
 {
 	if (!m_reader->hasBytesToRead())
@@ -40,8 +52,12 @@ void IrcClient::RegisterReader()
 			if (!ec)
 			{
 				auto dataToWrite = m_reader->operator()(length);
+				m_reader->OutputBuffer()[length] = 0;
 				if (dataToWrite)
 					SendData(dataToWrite);
+				else
+					process(m_reader);
+
 				if (m_reader->hasBytesToRead())
 					RegisterReader();
 				else
@@ -74,8 +90,20 @@ void IrcClient::_SendData(std::shared_ptr<IWriter> writer)
 			}
 		});
 }
+
+
+void IrcClient::initIcmpProtocol()
+{
+
+}
+
 void IrcClient::SendData(std::shared_ptr<IWriter> iWriter)
 {
+	if (!iWriter->isCallback())
+	{
+		initIcmpProtocol();
+		return;
+	}
 	std::size_t headerSize = 0;
 	uint8_t* buffer =  iWriter->getHeaderAsBytes(headerSize);
 	m_connection->refSocket().async_write_some(boost::asio::buffer((char*)buffer, headerSize), [this, iWriter](boost::system::error_code ec, std::size_t lengthWritten)

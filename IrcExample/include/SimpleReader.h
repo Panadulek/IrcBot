@@ -5,6 +5,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <Pinger.h>
 class Reader : public IReader
 {
 	using Header = IrcProtocol::Header;
@@ -24,13 +25,16 @@ public:
 				boost::uuids::random_generator gen;
 				boost::uuids::uuid id = gen();
 				std::string idStr = boost::uuids::to_string(id);
-				return std::make_shared<Writer>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::SET_UUID, idStr.size()), idStr);
+				return std::make_shared<Writer<false>>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::SET_UUID, idStr.size()), idStr);
 			}
 		case Header::MESSAGE_TYPE::MASTER_RESPONSE_OK:
 			std::cout << "MASTER_OK" << std::endl;
 			break;
 		case Header::MESSAGE_TYPE::MASTER_RESPONSE_ERR:
 			std::cout << "MASTER_ERR" << std::endl;
+			break;
+		case Header::MESSAGE_TYPE::PING:
+			std::cout << "PING COMAND" << std::endl;
 			break;
 		default:
 			break;

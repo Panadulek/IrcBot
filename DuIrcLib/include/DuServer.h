@@ -3,6 +3,7 @@
 #include "DuSession.h"
 #include <vector>
 #include <functional>
+#include <ranges>
 class DuServer
 {
 
@@ -21,6 +22,7 @@ private:
 			});
 		return it != m_sessions->end();
 	}
+	
 	bool setMasterUuid(boost::uuids::uuid id)
 	{
 		bool hadMaster = false;
@@ -30,6 +32,16 @@ private:
 			hadMaster = true;
 		}
 		return hadMaster;
+	}
+
+	void sendPingCommand(std::string_view ip)
+	{
+		std::ranges::for_each(*m_sessions, [this, ip](std::shared_ptr<DuSession> client)
+			{
+				if (!client->hasUUID())
+					return;
+				client->sendPingCommand(ip);
+			});
 	}
 
 public:

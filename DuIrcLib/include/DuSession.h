@@ -63,6 +63,8 @@ private:
 		Header m_header;
 	public:
 		SessionWriter(Header header) : m_header(header), IWriter() {}
+		SessionWriter(Header header, std::string_view msg) : m_header(header), m_data(msg.begin(), msg.end()) 
+		{}
 		virtual bool operator ()(std::size_t writtenDataSize)
 		{
 			bool bSendData = m_header.MessageSize > writtenDataSize;
@@ -162,6 +164,16 @@ private:
 								writer = std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::MASTER_RESPONSE_ERR, 0));
 							}
 							_writeHeader(writer);
+							break;
+						}
+						case IWriter::Header::MESSAGE_TYPE::PING:
+						{
+							std::string ip(reader->OutputBuffer().begin(), reader->OutputBuffer().begin() + length);
+							if (!ip.empty())
+							{
+								CALLBACKS._sendPingCommand(ip);
+							}
+							break;
 						}
 						default:
 							assert(0);
@@ -214,7 +226,19 @@ private:
 
 	void _write(std::shared_ptr<IWriter> writer)
 	{
-	
+		auto self(shared_from_this());
+		std::size_t headerSize = 0;
+		m_socket.async_write_some(boost::asio::buffer(writer->InputBuffer().data(), writer->InputBuffer().size()),
+		[this, self, writer](boost::system::error_code ec, std::size_t length)
+		{
+				if (!ec)
+				{
+					if (writer->operator()(length))
+					{
+						_writeHeader(writer);
+					}
+				}
+		});
 	}
 	
 public:
@@ -247,6 +271,12 @@ public:
 	{
 		return *getUUID() == *other.getUUID();
 	}
+
+	void sendPingCommand(std::string_view ping)
+	{
+		write(std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::PING, ping.size()), ping.data()));
+	}
+
 };
 
 #undef CALLBACKS

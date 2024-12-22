@@ -2,6 +2,9 @@
 
 #include <IWriter.h>
 
+
+
+template<bool createProtocol = false>
 class Writer : public IWriter
 {
 	QueueData m_bufferToSend;
@@ -34,4 +37,7 @@ public:
 	virtual Header getHeader() {
 		return m_header;
 	}
+
+	virtual bool isCallback() override { return !createProtocol; }
+
 };

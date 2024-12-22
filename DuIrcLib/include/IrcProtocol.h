@@ -4,6 +4,7 @@
 #include <string_view>
 #include <format>
 #include <array>
+#include <variant>
 #include <boost/uuid/uuid.hpp>
 #define COMMAND_METHOD static std::string
 
@@ -53,3 +54,5 @@ public:
 	};
 
 };
+
+

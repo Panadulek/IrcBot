@@ -13,6 +13,7 @@ struct IWriter
 	virtual QueueData& InputBuffer() = 0;
 	virtual Header getHeader() = 0;
 	virtual uint8_t* getHeaderAsBytes(std::size_t&) = 0;
+	virtual bool isCallback() { return true; }
 protected:
 	IWriter() {}
 };
