@@ -11,4 +11,5 @@ Callbacks::Callbacks(DuServer* serv)
 	_doesExistUuid = std::bind(&DuServer::doesExistUuid, serv, std::placeholders::_1);
 	_setMasterUuid = std::bind(&DuServer::setMasterUuid, serv, std::placeholders::_1);
 	_sendPingCommand = std::bind(&DuServer::sendPingCommand, serv, std::placeholders::_1);
+	_sendStopPingCommand = std::bind(&DuServer::sendStopPingCommand, serv);
 }

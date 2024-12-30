@@ -11,6 +11,7 @@ public:
 	RegexEngine()
 	{
 		m_regexes.insert({ RegexId::PING, boost::regex(R"(ping\s+ipv4\s+(\d{1,3}\.){3}\d{1,3})") });
+		m_regexes.insert({ RegexId::PING_STOP, boost::regex(R"(stop\s+ping)") });
 	}
 	FoundRegex findRegex(std::string_view line)
 	{

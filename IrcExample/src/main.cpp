@@ -31,7 +31,8 @@ std::string_view getMessage(IWriter::Header::MESSAGE_TYPE mt, std::string_view l
 		}
 		return line.substr(prevPos);
 	}
-	
+	case IWriter::Header::MESSAGE_TYPE::PING_STOP:
+		return "\n";
 	default:
 		return "";
 	}

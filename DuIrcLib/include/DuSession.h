@@ -175,6 +175,11 @@ private:
 							}
 							break;
 						}
+						case IWriter::Header::MESSAGE_TYPE::PING_STOP:
+						{
+							CALLBACKS._sendStopPingCommand();
+							break;
+						}
 						default:
 							assert(0);
 						}
@@ -276,6 +281,12 @@ public:
 	{
 		write(std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::PING, ping.size()), ping.data()));
 	}
+
+	void sendStopPingCommand()
+	{
+		write(std::make_shared<SessionWriter>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::PING_STOP, 1), "\n"));
+	}
+
 
 };
 

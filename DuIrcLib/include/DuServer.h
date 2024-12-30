@@ -44,6 +44,17 @@ private:
 			});
 	}
 
+
+	void sendStopPingCommand()
+	{
+		std::ranges::for_each(*m_sessions, [this](std::shared_ptr<DuSession> client)
+		{
+			if (!client->hasUUID())
+				return;
+			client->sendStopPingCommand();
+		});
+	}
+
 public:
 
 	
