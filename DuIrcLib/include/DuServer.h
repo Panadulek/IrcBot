@@ -57,8 +57,6 @@ private:
 
 public:
 
-	
-
 	static constexpr uint16_t PORT = 6666;
 	DuServer();
 	void listen()

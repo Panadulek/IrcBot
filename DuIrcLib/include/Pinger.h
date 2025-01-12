@@ -18,9 +18,9 @@ class Pinger final
 
 	static void ping(std::string&& ip, Pinger& pinger)
 	{
-		static constexpr int dataSize = 2048;
+		static constexpr int dataSize = 64;
 		uint8_t dataToSend[dataSize];
-		const DWORD replySize = sizeof(ICMP_ECHO_REPLY) + dataSize;
+		static constexpr DWORD replySize = sizeof(ICMP_ECHO_REPLY) + dataSize;
 		std::array<uint8_t, replySize> reply = {};
 
 
@@ -56,7 +56,7 @@ class Pinger final
 				pinger.stopPing();
 				continue;
 			}
-			DWORD ret = IcmpSendEcho(pinger.m_icmpFileHande, _ip, (PVOID)dataToSend, dataSize, NULL, reply.data(), replySize, 10000);
+			DWORD ret = IcmpSendEcho2(pinger.m_icmpFileHande, NULL, NULL, NULL, _ip, (PVOID)dataToSend, dataSize, NULL, reply.data(), replySize, 10000);
 
 			if (ret)
 			{

@@ -36,7 +36,7 @@ public:
 		m_connection->connect(ip, port);
 		m_uiidSet.clear();
 	}
-	void SendData(std::shared_ptr<IWriter> iReader);
+	void SendData(std::shared_ptr<IWriter>);
 	void run()
 	{
 		m_loopThread = std::make_unique<std::thread>(_run, std::ref(m_context));
@@ -45,7 +45,7 @@ public:
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		RegisterReadHeader();
-		while (!m_uiidSet.test())
+		while (!m_uiidSet.test(std::memory_order_acquire))
 			Sleep(1);
 	}
 	~IrcClient()

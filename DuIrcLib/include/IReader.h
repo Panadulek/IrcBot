@@ -20,6 +20,6 @@ struct IReader
 	virtual bool hasBytesToRead() = 0;
 	virtual ~IReader()
 	{
-		std::cout << std::format("DESTRUKTOR READER\n");
+		//std::cout << std::format("DESTRUKTOR READER\n");
 	}
 };

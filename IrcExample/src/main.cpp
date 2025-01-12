@@ -42,26 +42,35 @@ int main(int argc, char** argv)
 {
 	try
 	{
-	
+
 		RegexEngine regexEngine;
 		IrcClient client("127.0.0.1", "6666", std::make_shared<Reader>());
 		client.run();
-		std::string line = argc > 1 ?  "master" : "";
-		if (!line.empty())
-			client.SendData(std::make_shared<Writer<false>>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::MASTER, line.size()), line));
-		while (std::getline(std::cin, line)) 
+		bool isMaster = false;
+		if (argc > 1)
 		{
-			auto [isFound, messageType] = regexEngine.findRegex(line);
-			if (isFound)
+			isMaster = !strcmp(argv[1], "master");
+		}
+		std::string line = isMaster ?  "master" : "";
+		if (!line.empty())
+		{
+			client.SendData(std::make_shared<Writer<false>>(IWriter::Header(IWriter::Header::MESSAGE_TYPE::MASTER, line.size()), line));
+			while (std::getline(std::cin, line))
 			{
-				auto message = getMessage(messageType, line);
-				client.SendData(std::make_shared<Writer<false>>(IWriter::Header(messageType, message.size()), message.data()));
-			}
-			else
-			{
-				std::cout << "b³êdna komenda" << std::endl;
+				auto [isFound, messageType] = regexEngine.findRegex(line);
+				if (isFound)
+				{
+					auto message = getMessage(messageType, line);
+					client.SendData(std::make_shared<Writer<false>>(IWriter::Header(messageType, message.size()), message.data()));
+				}
+				else
+				{
+					std::cout << "b³êdna komenda" << std::endl;
+				}
 			}
 		}
+		else
+			while (1) {}
 	}
 	catch (const boost::system::system_error& e) {
 		std::cerr << "Error resolving host: " << e.what() << "\n";
